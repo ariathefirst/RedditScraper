@@ -69,6 +69,8 @@ with open(fileName,'w') as f1:
         # Scraping Subreddit
         elif (userOrSubreddit == "s"):
 
+                maxNumComments = 5000
+                
                 # Initialize bookkeeping variables
                 
                 totalCommentCount = 0
@@ -77,7 +79,7 @@ with open(fileName,'w') as f1:
                 writer.writerow(["#", "Subreddit", "Submission", "Comment", "Timestamp(PT)", "Comment Score", "Number of Comments in Submission", "Perpective Score"])
                 for submission in reddit.subreddit('politics').submissions():
 
-                        if (totalCommentCount > 50):
+                        if (totalCommentCount > maxNumComments):
                                 break
 
                         subCount += 1
