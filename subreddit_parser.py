@@ -62,7 +62,8 @@ with open(fileName,'w') as f1:
 		
 		        perspectiveScore = runPerspective(comment.body)
 			
-		        row = [index,comment.body.encode('utf8'),datetime.datetime.fromtimestamp(int(comment.created_utc)).strftime('%Y-%m-%d %H:%M:%S').encode('utf8'), comment.score, comment.num_comments, perspectiveScore]
+		        row = [index,comment.body.encode('utf8'),datetime.datetime.fromtimestamp(int(comment.created_utc)).strftime('%Y-%m-%d %H:%M:%S').encode('utf8'),
+                               comment.score, comment.num_comments, perspectiveScore]
 
                         writer.writerow(row)
 
@@ -77,7 +78,7 @@ with open(fileName,'w') as f1:
                 subCount = 0
 
                 writer.writerow(["#", "Subreddit", "Submission", "Comment", "Timestamp(PT)", "Comment Score", "Number of Comments in Submission", "Perpective Score"])
-                for submission in reddit.subreddit('politics').submissions():
+                for submission in reddit.subreddit(subreddit).submissions():
 
                         if (totalCommentCount > maxNumComments):
                                 break
@@ -112,6 +113,8 @@ with open(fileName,'w') as f1:
                                 # Subreddit name, submission link, index, comment body, timestamp, comment score, number of comments in submission,
                                 # Google Perspective toxicity rating
 
-                                row = [totalCommentCount, subreddit, submission.permalink, comment.body.encode('utf8'),datetime.datetime.fromtimestamp(int(comment.created_utc)).strftime('%Y-%m-%d %H:%M:%S').encode('utf8'), comment.score, submission.num_comments, perspectiveScore]
+                                row = [totalCommentCount, subreddit, submission.permalink, comment.body.encode('utf8'),
+                                       datetime.datetime.fromtimestamp(int(comment.created_utc)).strftime('%Y-%m-%d %H:%M:%S').encode('utf8'), comment.score,
+                                       submission.num_comments, perspectiveScore]
 
                                 writer.writerow(row)
