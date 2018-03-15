@@ -1,10 +1,10 @@
 import praw
-import psraw
 import datetime
 import csv
 import json
 import googleapiclient
 from googleapiclient import discovery
+import sys
 
 def runPerspective(str):
 	API_KEY='AIzaSyAlCwhKJ0C8n4eFM-ioPC5-MCFYy4P-TT8'
@@ -25,75 +25,41 @@ def runPerspective(str):
 		return "Error!"	
 
 	
+
 reddit = praw.Reddit(client_id='OlM6d2hKSrhbkw',
                      client_secret='w3kllzs-03WScaa9DFMHvRdTnQg',
                      password='WebW0rld',
                      user_agent='script by /u/sravyadivakarla123',
                      username='sravyadivakarla123')
 
-print(reddit.user.me())
+csvFile = str(sys.argv[1])
+print csvFile
 
-userOrSubreddit = raw_input("Would you like to scrape a user or a subreddit? Type u for user, s for subreddit. \n")
+all_Users = []
 
-if (userOrSubreddit == "u"):
-        user = raw_input("What user's comments would you like to scrape?\n")
+with open(csvFile, 'rU') as f:
+    reader = csv.reader(f, delimiter=',')
 
-file = raw_input("What would you like to name your file? This is where you'll store all the data. Do not include the extension.\n")
-
-# TESTING: default for testing 
-# user = "shaggorama"
-# fileName = "TEST"
-
-fileName  = file + '.csv'
+    # Each item is a list of containing all items in the row
+    for item in reader:
+        all_Users.append(item[0])
 
 
-with open(fileName,'w') as f1:
-	writer = csv.writer(f1, delimiter=',')
-	writer.writerow(["#","Comment","Timestamp(PT)", "Comment Score", "Number of Comments in Post", "Perpective Score"])
-	index = 0
+fileName = "TEST.csv"
 
-        if (userOrSubreddit == "u"):
-                for comment in reddit.redditor(user).comments.new(limit=20):
-		        index += 1
-		        print comment.body
-		
-		        perspectiveScore = runPerspective(comment.body)
-			
-		        row = [index,comment.body.encode('utf8'),datetime.datetime.fromtimestamp(int(comment.created_utc)).strftime('%Y-%m-%d %H:%M:%S').encode('utf8'), comment.score, comment.num_comments, perspectiveScore]
+for user in all_Users:
+	with open(fileName,'a') as f1:
+		writer = csv.writer(f1, delimiter=',')
+		writer.writerow(["User","#","Comment","Timestamp(PT)", "Comment Score", "Number of Comments in Post", "Perpective Score"])
+		index = 0
+		try:
+			for comment in reddit.redditor(user).comments.new(limit=10000):
+				index += 1
+				perspectiveScore = runPerspective(comment.body)
+				row = [user,index,comment.body.encode('utf8'),datetime.datetime.fromtimestamp(int(comment.created_utc)).strftime('%Y-%m-%d %H:%M:%S').encode('utf8'), comment.score, comment.num_comments, perspectiveScore]
+				writer.writerow(row)
+			print user
+		except:
+			print "ERROR " + user
 
-                        writer.writerow(row)
-
-
-        elif (userOrSubreddit == "s"):
-                commentCount = 0
-                subCount = 0
-                # print(len(list(psraw.submission_search(reddit, subreddit='AskEurope', limit=10000))))
-                # for comment in reddit.subreddit('cscareerquestions').comments(limit=25):
-                        # print(comment.body)
-
-                cmtCt = 0
-                for comment in psraw.comment_search(reddit, subreddit='politics', limit=3000):
-                        cmtCt += 1
-                        print(cmtCt)
-                        
-                for submission in reddit.subreddit('politics').submissions():
-                        if (subCount > 1000):
-                                break
-                        subCount += 1
-                        print("subCount: ")
-                        print(subCount)
-                        print("\n")
-                        this_thread_comment_count = 0
-                        submission.comments.replace_more(limit=None)
-                        for comment in submission.comments.list():
-                                commentCount += 1
-                                this_thread_comment_count += 1
-                                print("Total comment count: ")
-                                print(commentCount)
-                                print("\n")
-                                print("Local comment count: ")
-                                print(this_thread_comment_count)
-                                print("\n")
-                                print(submission.permalink)
-                                print(comment.body)
-
+print "done"
